@@ -30,145 +30,108 @@ pg_dump is a utility for backing up a PostgreSQL database
 	  
 ## Output
 	
-	- Data only
-	  Dump only the data, not the schema (data definitions). Table data, large objects and sequence values are dumped
-	- Include large objects
-	  Default behaviour
-	- Exclude large objects ([-B | --no-large-objects])
-	  Exclude large objects in dump
-	- Clean ([--clean])
-	  Output command to DROP all the dumped objects prior to outputting the commands for creating them. This option is useful when the restore is to overwrite an existing database
-	- ([--if-exists])
-	  Use DROP ... IF EXISTS commands to drop objects in --clean mode. This suppresses "does not exist" errors that might otherwise be reported.
-	- Create
-	  Begin the output with a command to create the database itself and reconnect to the created database. The output also includes the database's comment if any, and any configuration variable
-	  settings that are specific to this database (ALTER DATABASE ... SET ... / ALTER ROLE ... IN DATABASE ... SET ...). Access privileges for the database itself are also dumped, unless suppressed
-	- Extension(s) matching pattern
-	  Dump extensions matching a pattern. By default, all non-system extensions in the target database will be dumped.
+  - Data only
+    Dump only the data, not the schema (data definitions). Table data, large objects and sequence values are dumped
+  - Include large objects
+	Default behaviour
+  - Exclude large objects ([-B | --no-large-objects])
+	Exclude large objects in dump
+  - Clean ([--clean])
+	Output command to DROP all the dumped objects prior to outputting the commands for creating them. This option is useful when the restore is to overwrite an existing database
+  - ([--if-exists])
+	Use DROP ... IF EXISTS commands to drop objects in --clean mode. This suppresses "does not exist" errors that might otherwise be reported.
+  - Create
+	Begin the output with a command to create the database itself and reconnect to the created database. The output also includes the database's comment if any, and any configuration variable settings that are specific to this database (ALTER DATABASE ... SET ... / ALTER ROLE ... IN DATABASE ... SET ...). Access privileges for the database itself are also dumped, unless suppressed
+  - Extension(s) matching pattern
+	Dump extensions matching a pattern. By default, all non-system extensions in the target database will be dumped.
 		  
         NOTE
 		No other database objects that the selected extension(s) might depend upon are dumped. 
 
-    - Exclude extension matching pattern ([--exclude-extension=pattern])
-	  Do not dump extension matching **pattern**. 
-	  
-    - Schema ([-s | --schema-only])
-	  Dump only object definitions (schema), not data.
-	
-	- Schema matching pattern([-n pattern | --schema=pattern])
-	  Dump only schemas matching **pattern**. This selects both the schema itself and all its contained objects. 
+  - Exclude extension matching pattern ([--exclude-extension=pattern])
+	Do not dump extension matching **pattern**.   
+  - Schema ([-s | --schema-only])
+	Dump only object definitions (schema), not data.
+  - Schema matching pattern([-n pattern | --schema=pattern])
+	Dump only schemas matching **pattern**. This selects both the schema itself and all its contained objects. 
 		
 		NOTE
 		No other database objects that the selected schema(s) might depend on are dumped
 		  
-	- Exclude Schema ([-N pattern | --exclude-schema=pattern])
-	  Do not dump any schemas matching **pattern**.
+  - Exclude Schema ([-N pattern | --exclude-schema=pattern])
+	Do not dump any schemas matching **pattern**.
+  - Table matching pattern ([-t pattern | --table=pattern])
+	Dump only tables with names matching **pattern**. Possible to specify multiple tables. This option can be used to dump the definition of matching views, materialized views, foreign tables and sequences. It will not dump the contents of views or materialized views, and the content of foreign tables will only be dumped if the corresponding foreign server is specified with --include-foreign-data
+  - Table and children matching pattern ([--table-and-children=pattern])
+	Same as the above option, except that it also includes any partitions or inheritance child tables of the table(s) matching the **pattern**.
+  - Exclude table data matching pattern ([--exclude-table-data=pattern])
+	Do not dump data for any tables matching **pattern**. This option is useful when you need the definition of a particular table even though you do not need the data in it.
+  - Exclude table data and children matching pattern ([--exclude-table-data-and-children=pattern])
+	This is same as the above option, except that it also excludes data of any partitions or inheritance child tables of the table(s) matching the **pattern**.
+  - Exclude Table matching pattern ([-T pattern | --exclude-table=pattern])
+	Do not dump tables matching **pattern**. Possible to specify multiple table names to exclude. 
+  - Exclude Table and Children matching pattern ([--exclude-table-and-children=pattern])
+	Same as above option, except that it also excludes any partitions or inheritance child tables of the table(s) matching the **pattern**.  
+  - No ownership ([-O | --no-owner])
+	Do not output commands to set ownership of objects to match the original database. Use this option to make a script that can be restored by any user and give the ownership of all the objects
+  - Prevent access privileges ([-x | --no-privileges | --no-acl])
+	Prevent dumping of access privileges (grant/revoke commands)  
+  - Explicit column names ([--column-inserts | --attribute-inserts])
+	Dump data as INSERT commands with explicit column names(INSERT INTO table (column,...) VALUES ...). Mainly useful for making dumps that can be loaded into non-postgresql databases.  
+  - Disable $ quoting
+	This option disables the use of dollar quoting for function bodies, and forces them to be quoted using SQL standard string syntax  
+  - Enable Row security
+	This option is relevant only when dumping the contents of a table which has row security. By default, pg_dump will set row_security to off, to ensure all data is dumped from the table. If the user does not have sufficient privileges to bypass row security, then an error is thrown.   
+  - Specify float digits ([--extra-float-digits=ndigits])
+	Use the specified value when dumping floating-point data, instead of maximum available precision. Routine dumps made for backup purpose should not use this option  
+  - Filter ([--filter=filename])
+	Specify a filename from which to read patterns for objects to include or exclude from the dump. The file lists one object pattern per row, with the following format:
 	  
-	- Table matching pattern ([-t pattern | --table=pattern])
-	  Dump only tables with names matching **pattern**. Possible to specify multiple tables. This option can be used to dump the definition of matching views, materialized views, foreign tables and sequences. It will not dump the contents of views or materialized views, and the content of foreign tables will only be dumped if the corresponding foreign server is specified with --include-foreign-data
-	  
-	- Table and children matching pattern ([--table-and-children=pattern])
-	  Same as the above option, except that it also includes any partitions or inheritance child tables of the table(s) matching the **pattern**.
-	  
-	- Exclude table data matching pattern ([--exclude-table-data=pattern])
-	  Do not dump data for any tables matching **pattern**. This option is useful when you need the definition of a particular table even though you do not need the data in it.
-	  
-	- Exclude table data and children matching pattern ([--exclude-table-data-and-children=pattern])
-	  This is same as the above option, except that it also excludes data of any partitions or inheritance child tables of the table(s) matching the **pattern**.
-	  
-	- Exclude Table matching pattern ([-T pattern | --exclude-table=pattern])
-	  Do not dump tables matching **pattern**. Possible to specify multiple table names to exclude. 
-	  
-	- Exclude Table and Children matching pattern ([--exclude-table-and-children=pattern])
-	  Same as above option, except that it also excludes any partitions or inheritance child tables of the table(s) matching the **pattern**.
-	  
-	- No ownership ([-O | --no-owner])
-	  Do not output commands to set ownership of objects to match the original database. Use this option to make a script that can be restored by any user and give the ownership of all the objects
-	
-	- Prevent access privileges ([-x | --no-privileges | --no-acl])
-	  Prevent dumping of access privileges (grant/revoke commands)
-	  
-	- Explicit column names ([--column-inserts | --attribute-inserts])
-	  Dump data as INSERT commands with explicit column names(INSERT INTO table (column,...) VALUES ...). Mainly useful for making dumps that can be loaded into non-postgresql databases.
-	  
-	- Disable $ quoting
-	  This option disables the use of dollar quoting for function bodies, and forces them to be quoted using SQL standard string syntax
-	  
-	- Enable Row security
-	  This option is relevant only when dumping the contents of a table which has row security. By default, pg_dump will set row_security to off, to ensure all data is dumped from the table. If the user does not have sufficient privileges to bypass row security, then an error is thrown. 
-	  
-	- Specify float digits ([--extra-float-digits=ndigits])
-	  Use the specified value when dumping floating-point data, instead of maximum available precision. Routine dumps made for backup purpose should not use this option
-	  
-	- Filter ([--filter=filename])
-	  Specify a filename from which to read patterns for objects to include or exclude from the dump. The file lists one object pattern per row, with the following format:
-	  
-	      { include | exclude } { extension | foreign_data | table | table_and_children | table_data | table_data_and_children | schema } PATTERN
+	    { include | exclude } { extension | foreign_data | table | table_and_children | table_data | table_data_and_children | schema } PATTERN
 		  
-	  Lines starting with # are considered comments and ignored. Comments can be placed after an object pattern row as well.
-	  
-	- Include Foreign Data ([--include-foreign-data=foreignserver])
-	  Dump the data for any foreign table with a foreign server matching foreignserver pattern.
-	  
-	- Use INSERT command ([--inserts])
-	  Dump data as INSERT commands (rather than COPY). This will make restoration very slow; it is mainly useful for making dumps that can be loaded into non-PostgreSQL databases.
-	  
-	- Load via Partition Root ([--load-via-partition-root])
-	  When dumping data for a table partition, make the COPY or INSERT statements target the root of the partitioning hierarchy that contains it, rather than the partition itself. This causes the appropriate partition to be re-determined for each row when the data is loaded
-	  
-	- No comments ([--no-comments])
-	  Do not dump comments
-	  
-	- No publications ([--no-publications])
-	  Do not dump publications
-	  
-	- No security labels ([--no-security-labels])
-	  Do not dump security labels
-	  
-	- No subscription ([--no-subscription])
-	  Do not dump subscription
-	  
-	- No sync ([--no-sync])
-	  By default, pg_dump will wait for all files to be written safely to disk. This option causes pg_dump to return without waiting, which is faster, but means that a subsequent operating system crash can leave the dump corrupt. Generally, this option is useful for testing but should not be used when dumping data from production installation
-	  
-	- No Table Access Method ([--no-table-access-method])
-	  Do not output commands to select table access methods. With this option, all objects will be created with whichever table access method is the default during restore
-	  
-	- No Tablespaces ([--no-tablespaces])
-	  Do not output commands to select tablespaces. With this option, all objects will be created in whichever tablespace is the default during restore.
-	  
-	- No Toast Compression ([--no-toast-compression])
-	  Do not output commands to set TOAST compression methods. With this option, all columns will be restored with the default compression setting
-	  
-	- No unlogged Table Data ([--no-unlogged-table-data])
-	  Do not dump the contents of unlogged tables and sequences. This option has no effect on whether or not the table and sequence definitions (schema) are dumped; it only suppresses dumping the table and sequence data. Data in unlogged tables and sequences is always excluded when dumping from a standby server.
-	  
-	- Do nothing on conflict ([--on-conflict-do-nothing])
-	  Add ON CONFLICT DO NOTHING to INSERT commands. This option is valid only with --inserts, --column-inserts or --rows-per-insert is also specified.
-	  
-	- Quote all identifiers ([--quote-all-identifiers])
-	  Force quoting of all identifiers
-	  
-	- Rows per insert ([--rows-per-insert=nrows])
-	  Dump data as INSERT commands (rather than COPY). Controls the maximum number of rows per INSERT command.
-	  
-	- Dumped named section ([-section=sectionname])
-	  Only dump the named section. The section name can be pre-data, data, or post-data. This option can be specified more than once to select multiple sections. The default is to dump all sections. The data section contains actual table data, large-object contents, and sequence values. Post-data items include definitions of indexes, triggers, rules, and constraints other than validated check constraints. Pre-data items include all other data definition items.
-
-    - Serializable Deferrable ([--serializable-deferrable])
-	  Use a serializable transaction for the dump, to ensure that the snapshot used is consistent with later database states; but do this by waiting for a point in the transaction stream at which no anomalies can be present, so that there isn't a risk of the dump failing or causing other transactions to roll back with a serialization_failure.
-	  
-	- Dump Snapshot ([--snapshot=snapshotname])
-	  Use the specified synchronized snapshot when making a dump of the database
-	  
-	- Exact pattern name matching ([--strict-names])
-	  Require that each extension (-e/--extension), schema (-n/--schema) and table (-t/--table) pattern match at least one extension/schema/table in the database to be dumped. This also applies to filters used with --filter. Note that if none of the extension/schema/table patterns find matches, pg_dump will generate an error even without --strict-names
-	  
-	- Sync Method ([--sync-method=method])
-	  When set to fsync, which is the default, pg_dump --format=directory will recursively open and synchronize all files in the archive directory. On Linux, syncfs may be used instead to ask the operating system to synchronize the whole file system that contains the archive directory.
-	  
-	- Use Set Session Authorization ([--use-set-session-authorization])
-	  Output SQL-standard SET SESSION AUTHORIZATION commands instead of ALTER OWNER commands to determine object ownership. This makes the dump more standards-compatible, but depending on the history of the objects in the dump, might not restore properly. Also, a dump using SET SESSION AUTHORIZATION will certainly require superuser privileges to restore correctly, whereas ALTER OWNER requires lesser privileges.
+	Lines starting with # are considered comments and ignored. Comments can be placed after an object pattern row as well.
+  - Include Foreign Data ([--include-foreign-data=foreignserver])
+	Dump the data for any foreign table with a foreign server matching foreignserver pattern.  
+  - Use INSERT command ([--inserts])
+	Dump data as INSERT commands (rather than COPY). This will make restoration very slow; it is mainly useful for making dumps that can be loaded into non-PostgreSQL databases.  
+  - Load via Partition Root ([--load-via-partition-root])
+	When dumping data for a table partition, make the COPY or INSERT statements target the root of the partitioning hierarchy that contains it, rather than the partition itself. This causes the appropriate partition to be re-determined for each row when the data is loaded  
+  - No comments ([--no-comments])
+	Do not dump comments  
+  - No publications ([--no-publications])
+	Do not dump publications  
+  - No security labels ([--no-security-labels])
+	Do not dump security labels  
+  - No subscription ([--no-subscription])
+	Do not dump subscription  
+  - No sync ([--no-sync])
+	By default, pg_dump will wait for all files to be written safely to disk. This option causes pg_dump to return without waiting, which is faster, but means that a subsequent operating system crash can leave the dump corrupt. Generally, this option is useful for testing but should not be used when dumping data from production installation  
+  - No Table Access Method ([--no-table-access-method])
+	Do not output commands to select table access methods. With this option, all objects will be created with whichever table access method is the default during restore  
+  - No Tablespaces ([--no-tablespaces])
+	Do not output commands to select tablespaces. With this option, all objects will be created in whichever tablespace is the default during restore.  
+  - No Toast Compression ([--no-toast-compression])
+	Do not output commands to set TOAST compression methods. With this option, all columns will be restored with the default compression setting  
+  - No unlogged Table Data ([--no-unlogged-table-data])
+	Do not dump the contents of unlogged tables and sequences. This option has no effect on whether or not the table and sequence definitions (schema) are dumped; it only suppresses dumping the table and sequence data. Data in unlogged tables and sequences is always excluded when dumping from a standby server.
+  - Do nothing on conflict ([--on-conflict-do-nothing])
+	Add ON CONFLICT DO NOTHING to INSERT commands. This option is valid only with --inserts, --column-inserts or --rows-per-insert is also specified.  
+  - Quote all identifiers ([--quote-all-identifiers])
+	Force quoting of all identifiers
+  - Rows per insert ([--rows-per-insert=nrows])
+	Dump data as INSERT commands (rather than COPY). Controls the maximum number of rows per INSERT command.  
+  - Dumped named section ([-section=sectionname])
+	Only dump the named section. The section name can be pre-data, data, or post-data. This option can be specified more than once to select multiple sections. The default is to dump all sections. The data section contains actual table data, large-object contents, and sequence values. Post-data items include definitions of indexes, triggers, rules, and constraints other than validated check constraints. Pre-data items include all other data definition items.
+  - Serializable Deferrable ([--serializable-deferrable])
+	Use a serializable transaction for the dump, to ensure that the snapshot used is consistent with later database states; but do this by waiting for a point in the transaction stream at which no anomalies can be present, so that there isn't a risk of the dump failing or causing other transactions to roll back with a serialization_failure.  
+  - Dump Snapshot ([--snapshot=snapshotname])
+	Use the specified synchronized snapshot when making a dump of the database
+  - Exact pattern name matching ([--strict-names])
+	Require that each extension (-e/--extension), schema (-n/--schema) and table (-t/--table) pattern match at least one extension/schema/table in the database to be dumped. This also applies to filters used with --filter. Note that if none of the extension/schema/table patterns find matches, pg_dump will generate an error even without --strict-names
+  - Sync Method ([--sync-method=method])
+	When set to fsync, which is the default, pg_dump --format=directory will recursively open and synchronize all files in the archive directory. On Linux, syncfs may be used instead to ask the operating system to synchronize the whole file system that contains the archive directory.
+  - Use Set Session Authorization ([--use-set-session-authorization])
+	Output SQL-standard SET SESSION AUTHORIZATION commands instead of ALTER OWNER commands to determine object ownership. This makes the dump more standards-compatible, but depending on the history of the objects in the dump, might not restore properly. Also, a dump using SET SESSION AUTHORIZATION will certainly require superuser privileges to restore correctly, whereas ALTER OWNER requires lesser privileges.
  
 ## Character Encoding
 Create the dump in the specific character set encoding.
